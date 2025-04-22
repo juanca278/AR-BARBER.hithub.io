@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AR-BARBER</title>
+  <!-- Font Awesome para íconos -->
+  <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.css" />
+  <style>
+    /* General */
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #121212;
+      color: #fff;
+    }
+    header {
+      background: #000;
+      padding: 10px;
+      text-align: center;
+      border-bottom: 2px solid #D4AF37;
+    }
+    header img {
+      max-height: 120px;
+      display: block;
+      margin: 0 auto;
+    }
+    header h1 { margin: 10px 0; color: #D4AF37; }
+    nav { margin-top: 10px; }
+    nav button {
+      margin: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      background: #D4AF37;
+      border: none;
+      border-radius: 5px;
+      color: #121212;
+      transition: background 0.3s;
+    }
+    nav button:hover { background: #b0892c; }
+    section {
+      margin: 20px 0;
+      padding: 20px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+    .hidden { display: none; }
+    /* Formularios */
+    form {
+      background: #2c2c2c;
+      padding: 15px;
+      border: 1px solid #D4AF37;
+      border-radius: 5px;
+      max-width: 500px;
+      margin: 0 auto 15px;
+    }
+    form input, form button, form select {
+      width: 100%;
+      padding: 6px;
+      margin: 4px 0;
+      font-size: 14px;
+      border: 1px solid #D4AF37;
+      border-radius: 3px;
+      background: #121212;
+      color: #fff;
+    }
+    fieldset {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #D4AF37;
+      border-radius: 5px;
+    }
+    fieldset legend { padding: 0 5px; }
+    .hours-container { margin: 10px 0; }
+    .hours-container button {
+      margin: 5px;
+      padding: 8px;
+      font-size: 12px;
+      width: 80px;
+      border: 1px solid #D4AF37;
+      background: #121212;
+      color: #fff;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+    .hours-container button.selected {
+      background: #D4AF37;
+      color: #121212;
+    }
+    .hours-container button[disabled] {
+      text-decoration: line-through;
+      color: gray;
+    }
+    #btnAcceptAppointment {
+      margin-top: 10px;
+      background: #D4AF37;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 20px;
+      color: #121212;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #btnAcceptAppointment:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+    /* Área de Inicio */
+    .home-container {
+      text-align: center;
+      margin-top: 20px;
+      padding: 20px;
+      background: linear-gradient(45deg, #000, #333);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+    .home-container h2 { font-size: 2em; margin-bottom: 10px; color: #D4AF37; }
+    .home-container p { font-size: 1.2em; margin-bottom: 15px; }
+    .contact-info p { margin: 5px 0; font-size: 1em; }
+    .contact-info a {
+      color: #D4AF37;
+      text-decoration: none;
+      font-weight: bold;
+      margin-right: 15px;
+    }
+    .contact-info a:hover { text-decoration: underline; }
+    /* Modal de Edición */
+    #editModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #editModal .modal-content {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+    }
+    #editModal input,
+    #editModal select,
+    #editModal button {
+      margin: 5px 0;
+      padding: 8px;
+      width: 100%;
+      font-size: 14px;
+      border: 1px solid #D4AF37;
+      border-radius: 3px;
+      background: #121212;
+      color: #fff;
+    }
+    #editModal fieldset { border: none; padding: 0; }
+    #editModal .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    /* Panel de Administración */
+    #adminContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+    }
+    .status-group {
+      border: 1px solid #D4AF37;
+      border-radius: 5px;
+      background: #2c2c2c;
+      padding: 15px;
+    }
+    .status-group h3 {
+      margin: 0 0 10px 0;
+      color: #D4AF37;
+      text-align: center;
+    }
+    .appointment {
+      background: #121212;
+      padding: 10px;
+      border: 1px solid #D4AF37;
+      border-radius: 3px;
+      margin-bottom: 10px;
+    }
+    .appointment p { margin: 5px 0; }
+    .estatus-proximo { color: yellow; font-weight: bold; }
+    .estatus-pendiente { color: red; font-weight: bold; }
+    .estatus-finalizado { color: green; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <!-- Inicializar Firebase con el SDK modular (v9) -->
+  <script type="module">
+    // Importar funciones de Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+
+    // Configuración de Firebase (reemplaza con tu información)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAuCecYVh9CiAlW6dWNrZuzuLq2DETtq1k",
+      authDomain: "ar-barber.firebaseapp.com",
+      projectId: "ar-barber",
+      storageBucket: "ar-barber.firebasestorage.app",
+      messagingSenderId: "663202339677",
+      appId: "1:663202339677:web:441b1abf0d0ff5034966b4",
+      measurementId: "G-3WBEMN22HX"
+    };
+
+    // Inicializar Firebase y obtener Firestore y Analytics
+    const appFirebase = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(appFirebase);
+    const db = getFirestore(appFirebase);
+
+    // Variables globales
+    const appointments = [];
+    const adminCredentials = { user: "admin", pass: "admin123" };
+    let clientData = {};  
+    let selectedHour = null;
+    let currentEditingIndex = null; // Índice en el array (para editar)
+
+    // Cargar citas desde Firestore
+    async function loadAppointments() {
+      appointments.length = 0;
+      const querySnapshot = await getDocs(collection(db, "appointments"));
+      querySnapshot.forEach(docSnap => {
+        let data = docSnap.data();
+        data.id = docSnap.id;
+        appointments.push(data);
+      });
+      renderAdminPanel();
+    }
+    loadAppointments();
+
+    // Migrar citas antiguas a los nuevos estatus
+    function migrateAppointments() {
+      appointments.forEach(app => {
+        if (app.estatus === "Próximo") {
+          app.estatus = "Próximo corte";
+        } else if (app.estatus === "Pendiente") {
+          app.estatus = "Corte no realizado";
+        } else if (app.estatus === "Finalizado") {
+          app.estatus = "Corte Terminado";
+        }
+      });
+      // La migración se realiza en memoria; puedes actualizar Firestore si lo deseas.
+    }
+
+    // Mostrar sección
+    function showSection(sectionId) {
+      document.querySelectorAll("section").forEach(section => section.classList.add("hidden"));
+      document.getElementById(sectionId).classList.remove("hidden");
+    }
+
+    // Manejo del formulario de cliente
+    document.getElementById("clientForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = document.getElementById("clientName").value;
+      const date = document.getElementById("clientDate").value;
+      const cutType = document.getElementById("cutType").value;
+      const selectedProducts = Array.from(document.querySelectorAll("#clientForm input[type=checkbox]:checked"))
+                                      .map(product => product.value);
+      if (!date) {
+        document.getElementById("clientMessage").textContent = "Debe seleccionar una fecha.";
+        return;
+      }
+      if (!cutType) {
+        document.getElementById("clientMessage").textContent = "Debe seleccionar el servicio.";
+        return;
+      }
+      clientData = { name, date, selectedProducts, cutType };
+      document.getElementById("selectedDate").textContent = date;
+      document.getElementById("hoursSection").classList.remove("hidden");
+      renderAvailableHours(date);
+      document.getElementById("btnAcceptAppointment").disabled = true;
+    });
+
+    // Mostrar horas disponibles en reserva
+    function renderAvailableHours(date) {
+      const hoursContainer = document.getElementById("hoursContainer");
+      hoursContainer.innerHTML = "";
+      selectedHour = null;
+      const hours = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
+      const todayStr = new Date().toISOString().split("T")[0];
+      hours.forEach(hour => {
+        const isBooked = appointments.some(app => app.date === date && app.time === hour);
+        const button = document.createElement("button");
+        button.textContent = hour;
+        if (isBooked) {
+          button.disabled = true;
+          button.style.textDecoration = "line-through";
+          button.style.color = "gray";
+        } else if(date === todayStr && new Date() > new Date(date + "T" + hour)) {
+          button.disabled = true;
+          button.style.textDecoration = "line-through";
+          button.style.color = "gray";
+        } else {
+          button.addEventListener("click", function() {
+            const btns = hoursContainer.querySelectorAll("button");
+            btns.forEach(btn => btn.classList.remove("selected"));
+            this.classList.add("selected");
+            selectedHour = hour;
+            document.getElementById("btnAcceptAppointment").disabled = false;
+          });
+        }
+        hoursContainer.appendChild(button);
+      });
+    }
+
+    document.getElementById("btnAcceptAppointment").addEventListener("click", () => {
+      if (!selectedHour) return;
+      reserveHour(clientData.name, clientData.date, selectedHour, clientData.selectedProducts, clientData.cutType);
+      document.getElementById("clientForm").reset();
+      clientData = {};
+      selectedHour = null;
+    });
+
+    // Guardar nueva cita en Firestore (se asigna "Próximo corte")
+    async function reserveHour(name, date, hour, products, cutType) {
+      let price = servicePrices[cutType] || 0;
+      products.forEach(product => { price += productPrices[product] || 0; });
+      try {
+        await addDoc(collection(db, "appointments"), {
+          name,
+          date,
+          time: hour,
+          products,
+          cutType,
+          monto: price,
+          estatus: "Próximo corte"
+        });
+        await loadAppointments();
+        document.getElementById("clientMessage").textContent =
+          `Cita reservada para el ${date} a las ${hour}. Servicio: ${cutType}. Productos: ${products.join(", ") || "Ninguno"}. Precio: $${price}.`;
+        renderAvailableHours(date);
+        setTimeout(() => showSection("home"), 2000);
+      } catch (error) {
+        console.error("Error al reservar la cita: ", error);
+      }
+    }
+
+    // Login Administrador
+    document.getElementById("loginForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const user = document.getElementById("adminUser").value;
+      const pass = document.getElementById("adminPass").value;
+      if(user === adminCredentials.user && pass === adminCredentials.pass) {
+        showSection("adminPanel");
+        loadAppointments();
+      } else {
+        document.getElementById("loginMessage").textContent = "Usuario o contraseña incorrectos.";
+      }
+    });
+
+    document.getElementById("btnAdminExit").addEventListener("click", () => {
+      document.getElementById("adminUser").value = "";
+      document.getElementById("adminPass").value = "";
+      document.getElementById("loginMessage").textContent = "";
+      showSection("home");
+    });
+
+    // Crear elemento HTML para cada cita en el panel de administración
+    function createAppointmentElement(app, index) {
+      let estClass = "";
+      if(app.estatus === "Próximo corte") {
+        estClass = "estatus-proximo";
+      } else if(app.estatus === "Corte no realizado") {
+        estClass = "estatus-pendiente";
+      } else if(app.estatus === "Corte Terminado") {
+        estClass = "estatus-finalizado";
+      }
+      const container = document.createElement("div");
+      container.classList.add("appointment");
+      container.innerHTML = `
+        <p><strong>Nombre:</strong> ${app.name}</p>
+        <p><strong>Fecha:</strong> ${app.date}</p>
+        <p><strong>Hora:</strong> ${app.time}</p>
+        <p><strong>Servicio:</strong> ${app.cutType || "Sin especificar"}</p>
+        <p><strong>Productos:</strong> ${app.products && app.products.length > 0 ? app.products.join(", ") : "Ninguno"}</p>
+        <p><strong>Ingreso:</strong> $${app.monto}</p>
+        <p><strong>Estatus:</strong> <span class="${estClass}">${app.estatus}</span></p>
+        <div>
+          <button class="btnTerminado" data-index="${index}" style="background:#D4AF37; border:none; padding:5px 10px; border-radius:3px; color:#121212;">Terminar corte</button>
+          <button class="btnModificar" data-index="${index}" style="background:#D4AF37; border:none; padding:5px 10px; border-radius:3px; color:#121212; margin-left:5px;">Modificar cita</button>
+        </div>
+      `;
+      return container;
+    }
+
+    // Renderizar el panel de administración agrupado por estatus
+    function renderAdminPanel() {
+      purgeOldFinalizedAppointments();
+      const adminContainer = document.getElementById("adminContainer");
+      adminContainer.innerHTML = "";
+      const now = new Date();
+
+      const groupProximo = document.createElement("div");
+      groupProximo.className = "status-group";
+      groupProximo.innerHTML = "<h3>Próximo corte</h3>";
+      
+      const groupPendiente = document.createElement("div");
+      groupPendiente.className = "status-group";
+      groupPendiente.innerHTML = "<h3>Corte no realizado</h3>";
+      
+      const groupFinalizado = document.createElement("div");
+      groupFinalizado.className = "status-group";
+      groupFinalizado.innerHTML = "<h3>Corte Terminado</h3>";
+
+      appointments.forEach((app, index) => {
+        const appDateTime = new Date(app.date + "T" + app.time);
+        if(app.estatus === "Próximo corte" && appDateTime < now) {
+          const appointmentId = app.id;
+          updateDoc(doc(db, "appointments", appointmentId), { estatus: "Corte no realizado" });
+          app.estatus = "Corte no realizado";
+        }
+        const appointmentElement = createAppointmentElement(app, index);
+        if(app.estatus === "Próximo corte") {
+          groupProximo.appendChild(appointmentElement);
+        } else if(app.estatus === "Corte no realizado") {
+          groupPendiente.appendChild(appointmentElement);
+        } else if(app.estatus === "Corte Terminado") {
+          groupFinalizado.appendChild(appointmentElement);
+        }
+      });
+      
+      if(groupProximo.children.length <= 1) {
+        const msg = document.createElement("p");
+        msg.textContent = "No hay citas próximas.";
+        groupProximo.appendChild(msg);
+      }
+      if(groupPendiente.children.length <= 1) {
+        const msg = document.createElement("p");
+        msg.textContent = "No hay citas pendientes.";
+        groupPendiente.appendChild(msg);
+      }
+      if(groupFinalizado.children.length <= 1) {
+        const msg = document.createElement("p");
+        msg.textContent = "No hay citas terminadas.";
+        groupFinalizado.appendChild(msg);
+      }
+      
+      adminContainer.appendChild(groupProximo);
+      adminContainer.appendChild(groupPendiente);
+      adminContainer.appendChild(groupFinalizado);
+
+      document.querySelectorAll(".btnTerminado").forEach(button => {
+        button.addEventListener("click", function() {
+          const idx = this.getAttribute("data-index");
+          const appointmentId = appointments[idx].id;
+          updateDoc(doc(db, "appointments", appointmentId), {
+            estatus: "Corte Terminado",
+            finalizedAt: new Date().toISOString()
+          }).then(() => {
+            alert("Cita marcada como Corte Terminado. Se borrará automáticamente en 3 días.");
+            loadAppointments();
+          });
+        });
+      });
+
+      document.querySelectorAll(".btnModificar").forEach(button => {
+        button.addEventListener("click", function() {
+          const idx = this.getAttribute("data-index");
+          if(idx !== null) {
+            currentEditingIndex = idx;
+            openEditModal(idx);
+          }
+        });
+      });
+    }
+
+    // Purgar citas terminadas de más de 3 días
+    async function purgeOldFinalizedAppointments() {
+      const now = Date.now();
+      const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+      for (let i = appointments.length - 1; i >= 0; i--) {
+        let app = appointments[i];
+        if (app.estatus === "Corte Terminado" && app.finalizedAt) {
+          const finalizedTime = new Date(app.finalizedAt).getTime();
+          if (now - finalizedTime >= threeDaysInMs) {
+            await deleteDoc(doc(db, "appointments", app.id));
+          }
+        }
+      }
+      await loadAppointments();
+    }
+
+    // Funciones de edición: actualizar opciones de hora, abrir y cerrar modal
+    function updateEditTimeOptions(selectedDate, currentTimeSelection) {
+      const editTimeSelect = document.getElementById("editTime");
+      editTimeSelect.innerHTML = "";
+      const hours = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
+      const todayStr = new Date().toISOString().split("T")[0];
+      hours.forEach(hour => {
+        let isBooked = appointments.some((app, index) => {
+          if (index == currentEditingIndex) return false;
+          return app.date === selectedDate && app.time === hour;
+        });
+        let isPast = false;
+        if (selectedDate === todayStr && new Date() > new Date(selectedDate + "T" + hour)) {
+          isPast = true;
+        }
+        const option = document.createElement("option");
+        option.value = hour;
+        if ((isBooked || isPast) && currentTimeSelection !== hour) {
+          option.disabled = true;
+          option.textContent = "❌ " + hour;
+        } else {
+          option.textContent = hour;
+        }
+        editTimeSelect.appendChild(option);
+      });
+    }
+
+    function openEditModal(index) {
+      const app = appointments[index];
+      document.getElementById("editDate").value = app.date;
+      updateEditTimeOptions(app.date, app.time);
+      document.getElementById("editTime").value = app.time;
+      document.getElementById("editCutType").value = app.cutType;
+      const productCheckboxIds = ["editProduct1", "editProduct2", "editProduct3", "editProduct4", "editProduct5"];
+      productCheckboxIds.forEach(id => { document.getElementById(id).checked = false; });
+      if (app.products && app.products.length > 0) {
+        app.products.forEach(prod => {
+          const checkboxes = document.querySelectorAll("#editModal input[type='checkbox']");
+          checkboxes.forEach(cb => { if (cb.value === prod) { cb.checked = true; } });
+        });
+      }
+      document.getElementById("editModal").style.display = "flex";
+    }
+
+    function closeEditModal() {
+      document.getElementById("editModal").style.display = "none";
+    }
+
+    document.getElementById("editDate").addEventListener("change", function() {
+      updateEditTimeOptions(this.value, null);
+    });
+
+    document.getElementById("saveChanges").addEventListener("click", function() {
+      const newDate = document.getElementById("editDate").value;
+      const newTime = document.getElementById("editTime").value;
+      const newCutType = document.getElementById("editCutType").value;
+      const newProducts = [];
+      const checkboxes = document.querySelectorAll("#editModal input[type='checkbox']");
+      checkboxes.forEach(cb => { if (cb.checked) { newProducts.push(cb.value); } });
+      if (!newDate || !newTime || !newCutType) {
+        alert("Por favor llene todos los campos requeridos.");
+        return;
+      }
+      let newPrice = servicePrices[newCutType] || 0;
+      newProducts.forEach(product => { newPrice += productPrices[product] || 0; });
+      const appointmentId = appointments[currentEditingIndex].id;
+      updateDoc(doc(db, "appointments", appointmentId), {
+        date: newDate,
+        time: newTime,
+        cutType: newCutType,
+        products: newProducts,
+        monto: newPrice,
+        estatus: "Próximo corte"
+      }).then(() => {
+        loadAppointments();
+        closeEditModal();
+        alert("Cita modificada correctamente.");
+      });
+    });
+
+    document.getElementById("deleteAppointment").addEventListener("click", function() {
+      const appointmentId = appointments[currentEditingIndex].id;
+      if (confirm("¿Estás seguro de que deseas cancelar la cita?")) {
+        deleteDoc(doc(db, "appointments", appointmentId)).then(() => {
+          loadAppointments();
+          closeEditModal();
+          alert("Cita cancelada.");
+        });
+      }
+    });
+
+    document.getElementById("closeEditModal").addEventListener("click", function() {
+      closeEditModal();
+    });
+
